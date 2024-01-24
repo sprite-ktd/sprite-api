@@ -1,0 +1,35 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Member {
+  id               String    @id @default(cuid())
+  email            String    @unique
+  displayName      String
+  sentMessages     Message[] @relation(name: "sender")
+  receivedMessages Message[] @relation(name: "receiver")
+}
+
+model EmailConfirmation {
+  id        String  @id @default(cuid())
+  code      String
+  email     String  @unique
+  isExpired Boolean @default(false)
+}
+
+model Message {
+  id         String @id @default(cuid())
+  content    String
+  senderId   String
+  receiverId String
+  sender     Member @relation(name: "sender", fields: [senderId], references: [id])
+  receiver   Member @relation(name: "receiver", fields: [receiverId], references: [id])
+}
